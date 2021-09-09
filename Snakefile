@@ -133,21 +133,6 @@ SOURCE_LANGUAGES = {
         'ro',
     ],
 
-    # 99.2% of Reddit is in English. Some text that's in other languages is
-    # just spam, but these languages seem to have a reasonable amount of
-    # representative text.
-    #
-    # Frequently-detected languages that are too spammy or mis-detected:
-    # ar, da, nl, sh, ro, ru, tl
-    'reddit': [
-        'de',
-        'en', 'eo', 'es', 'fi', 'fr',
-        'hi', 'it', 'ja',
-        'no', 'pl',
-        'sv',
-        'uk',
-    ],
-
     # Sufficiently large, non-spammy Wikipedias.
     # See https://meta.wikimedia.org/wiki/List_of_Wikipedias -- we're looking
     # for Wikipedias that have at least 100,000 articles and a "depth" measure
@@ -172,12 +157,11 @@ SOURCE_LANGUAGES = {
 }
 
 COUNT_SOURCES = [
-    'opensubtitles', 'wikipedia', 'reddit',
-    'google-ngrams', 'jieba', 'oscar'
+    'opensubtitles', 'wikipedia', 'google-ngrams', 'jieba', 'oscar'
 ]
 
 FULL_TEXT_SOURCES = [
-    'wikipedia', 'reddit', 'twitter', 'opensubtitles',
+    'wikipedia', 'opensubtitles',
     'newscrawl', 'globalvoices'
 ]
 MERGED_SOURCES = {
@@ -228,25 +212,6 @@ GOOGLE_3GRAM_SHARDS = [
     if _c1 + _c2 not in {'qg', 'qz', 'xg', 'xq', 'zq'}
 ]
 
-# We have Reddit data that's sharded by month, from 2007-10 to 2017-11.
-
-REDDIT_SHARDS = ['{:04d}-{:02d}'.format(y, m) for (y, m) in (
-    [(2007, month) for month in range(10, 12 + 1)] +
-    [(year, month) for year in range(2008, 2020) for month in range(1, 12 + 1)]
-)]
-
-# Sample 1 out of every 5 months, which allows us to download fewer files, but
-# (because 5 is relatively prime to 12) provides a reasonably even sample of
-# events around the year.
-SAMPLED_REDDIT_SHARDS = [
-    '2007-10', '2008-03', '2008-08', '2009-01', '2009-06', '2009-11',
-    '2010-04', '2010-09', '2011-02', '2011-07', '2011-12', '2012-05',
-    '2012-10', '2013-03', '2013-08', '2014-01', '2014-06', '2014-11',
-    '2015-04', '2015-09', '2015-02', '2016-07', '2016-12', '2017-05',
-    '2017-10', '2018-03', '2018-08', '2019-01', '2019-06', '2019-11',
-    '2020-04', '2020-09', '2021-02', '2021-07'
-]
-
 
 LANGUAGE_SOURCES = defaultdict(list)
 for _source in COUNT_SOURCES:
@@ -262,21 +227,6 @@ for _source in COUNT_SOURCES:
 SUPPORTED_LANGUAGES = sorted([_lang for _lang in LANGUAGE_SOURCES if len(LANGUAGE_SOURCES[_lang]) >= 3])
 LARGE_LANGUAGES = sorted([_lang for _lang in LANGUAGE_SOURCES if len(LANGUAGE_SOURCES[_lang]) >= 5 or _lang == 'nl'])
 
-
-
-def find_reddit_filename(wildcards):
-    """
-    pushshift.io's Reddit archives are compressed in different formats
-    over time. Find the correct filename given the date.
-    """
-    yearmonth = wildcards.year + '-' + wildcards.month
-    if yearmonth <= '2017-11':
-        ext = '.bz2'
-    elif yearmonth <= '2018-10':
-        ext = '.xz'
-    else:
-        ext = '.zst'
-    return DATA + "/downloaded/reddit/" + yearmonth + ext
 
 
 def language_count_sources(lang):
@@ -392,16 +342,6 @@ rule download_opensubtitles:
         shell("wget 'http://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/mono/OpenSubtitles.raw.{source_lang}.gz' -O {output}")
 
 
-rule download_reddit:
-    output:
-        DATA + "/downloaded/reddit/{year}-{month}.{ext}"
-    resources:
-        download=1
-    priority: 0
-    run:
-        shell("wget 'https://files.pushshift.io/reddit/comments/RC_{wildcards.year}-{wildcards.month}.{wildcards.ext}' -O {output}")
-
-
 rule download_wikipedia:
     output:
         DATA + "/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
@@ -439,3 +379,8 @@ def show_language_stats():
             ))
 
 show_language_stats()
+
+
+# Extracting downloaded data
+# ==========================
+
