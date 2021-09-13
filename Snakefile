@@ -124,15 +124,6 @@ SOURCE_LANGUAGES = {
         # based on Caswell et al. (2021), https://arxiv.org/pdf/2103.12028.pdf
     ],
 
-    # ParaCrawl, which aligns Web-crawled text from English to 11 other languages
-    'paracrawl': [
-        'cs', 'de',
-        'en', 'es', 'fi', 'fr',
-        'it',
-        'lv', 'nl', 'pl', 'pt',
-        'ro',
-    ],
-
     # Sufficiently large, non-spammy Wikipedias.
     # See https://meta.wikimedia.org/wiki/List_of_Wikipedias -- we're looking
     # for Wikipedias that have at least 100,000 articles and a "depth" measure
@@ -268,33 +259,6 @@ def multisource_counts_to_merge(multisource, lang):
         if lang in SOURCE_LANGUAGES[source]
     ]
     return result
-
-
-def paracrawl_language_pair_source(lang):
-    """
-    Given a language code in ParaCrawl, we find the "paired" file that contains
-    monolingual tokenized data from that language.
-    ParaCrawl is parallel data, so its input files refer to language pairs. In
-    practice, each language pair is English and a non-English language. So the
-    result for most languages is that they are paired with English. English is
-    paired with French, as that language pair yields the most text.
-    A "paired" filename is tagged with both a language pair and a single
-    language. All the text in the file is in that single language, but the
-    filename also refers to the language pair that it came from. The other file
-    from that language pair has corresponding lines in the same order, so you
-    could 'paste' them together to get tabular parallel text, with text in one
-    language and its translation in another.
-    We sort the language codes to make them consistent with OPUS sources.
-    """
-    if lang == 'en':
-        other = 'fr'
-    else:
-        other = 'en'
-
-    lang1, lang2 = sorted([lang, other])
-    langpair = '{}_{}'.format(lang1, lang2)
-
-    return DATA + "/tokenized/paracrawl-paired/{langpair}.{lang}.txt".format(langpair=langpair, lang=lang)
 
 
 # Top-level rules
