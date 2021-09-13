@@ -166,8 +166,6 @@ FULL_TEXT_SOURCES = [
 ]
 MERGED_SOURCES = {
     'news': ['newscrawl', 'globalvoices'],
-    'web': ['mokk', 'paracrawl'],
-    'subtitles': ['opus/OpenSubtitles2018', 'subtlex'],
 }
 
 GOOGLE_NUM_1GRAM_SHARDS = {
