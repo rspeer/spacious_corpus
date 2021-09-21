@@ -1,2 +1,5 @@
 data
+.hypothesis
 .snakemake
+__pycache__
+*.egg-info

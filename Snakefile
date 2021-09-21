@@ -12,17 +12,9 @@ WP_VERSION = '20210901'
 # when building SpaCy-specific targets.
 #
 # Lists of languages would take up too much space in the autoformatted "one per
-# line" standard. We group them here by the AEHLRU convention -- each of those
+# line" standard. We group them here by the AEHLPT convention -- each of those
 # letters is an initial letter that starts a new line. This convention allows
 # for less scrolling without constantly reformatting when changing the lists.
-SPACY_LANGUAGES = {
-    'ca', 'da', 'de',
-    'el', 'en', 'es', 'fr',
-    'it', 'ja',
-    'lt', 'mk', 'no', 'pl', 'pt',
-    'ro', 'ru',
-    'zh',
-}
 
 
 LANGUAGE_MAPS = {
@@ -70,14 +62,19 @@ def map_source_language(source, lcode):
 
 
 SOURCE_LANGUAGES = {
-    # GlobalVoices (LREC 2012), from OPUS -- languages with over 500,000 tokens
+    # GlobalVoices (LREC 2012), from OPUS -- languages with over 100,000 sentences
+    #
+    # GlobalVoices is multilingual news with a more left activist perspective than
+    # the usual news sources. (If you're worried about the effect of this, consider
+    # the effect of the decades that we've been doing the opposite by training NLP
+    # on the Wall Street Journal.)
     'globalvoices': [
         'ar', 'bn', 'ca', 'de',
-        'en', 'es', 'fr',
+        'el', 'en', 'es', 'fr',
         'it', 'ja',
-        'mg', 'mk', 'nl', 'pl', 'pt',
-        'ru', 'sw',
-        'zh-Hans', 'zh-Hant', 'zh'
+        'mg',
+        'pl', 'pt', 'ru', 'sw',
+        'zh-Hans', 'zh-Hant',
     ],
 
     # Google Ngrams 2012
@@ -86,7 +83,7 @@ SOURCE_LANGUAGES = {
         'en', 'es', 'fr',
         'he', 'it',
         'ru',
-        'zh-Hans', 'zh', 
+        'zh-Hans', 
     ],
 
     # Jieba's built-in wordlist (supposedly MIT licensed?)
@@ -97,26 +94,26 @@ SOURCE_LANGUAGES = {
 
     # OPUS's data files of OpenSubtitles 2018
     #
-    # Include languages with at least 400 subtitle files, but skip:
-    # - 'ze' because that's not a real language code
-    #   (it seems to represent code-switching Chinese and English)
-    # - 'th' because we don't know how to tokenize it
+    # Include languages with at least 400 subtitle files, but skip 'ze', which is
+    # not a real language code
+    # (it seems to represent mixed Chinese and English in some form)
     'opensubtitles': [
         'ar', 'bg', 'bn', 'bs', 'ca', 'cs', 'da', 'de',
         'el', 'en', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'gl',
         'he', 'hr', 'hu', 'id', 'is', 'it', 'ja', 'ko',
-        'lt', 'lv', 'mk', 'ml', 'ms', 'nl', 'nb', 'pl', 'pt-PT', 'pt-BR', 'pt',
-        'ro', 'ru', 'si', 'sk', 'sl', 'sq', 'sr', 'sv', 'tr',
-        'uk', 'vi', 'zh-Hans', 'zh-Hant', 'zh'
+        'lt', 'lv', 'mk', 'ml', 'ms', 'nl', 'nb',
+        'pl', 'pt-PT', 'pt-BR', 'pt', 'ro', 'ru', 'si', 'sk', 'sl', 'sq', 'sr', 'sv',
+        'th', 'tr', 'uk', 'vi', 'zh-Hans', 'zh-Hant',
+        # TODO: merge pt-PT and pt-BR
     ],
 
     'oscar': [
         'ar', 'az', 'be', 'bn', 'bg', 'bs', 'ca', 'cs', 'da', 'de',
         'el', 'en', 'es', 'et', 'fa', 'fi', 'fr', 'gu',
         'he', 'hi', 'hr', 'hu', 'hy', 'id', 'is', 'it', 'ja', 'ka', 'kk', 'ko', 
-        'lt', 'lv', 'mk', 'ml', 'mn', 'mr', 'nl', 'no', 'pl', 'pt',
-        'ro', 'sk', 'sl', 'sq', 'sr', 'sv', 'sw', 'ta', 'te', 'th', 'tl', 'tr',
-        'uk', 'ur', 'vi', 'zh',
+        'lt', 'lv', 'mk', 'ml', 'mn', 'mr', 'nl', 'no',
+        'pl', 'pt', 'ro', 'sk', 'sl', 'sq', 'sr', 'sv', 'sw',
+        'ta', 'te', 'th', 'tl', 'tr', 'uk', 'ur', 'vi', 'zh',
 
         # Removed languages that are less than 80% correct when audited:
         # gl, ne, mr 
@@ -133,31 +130,49 @@ SOURCE_LANGUAGES = {
         'ar', 'bg', 'bs', 'ca', 'cs', 'cy', 'da', 'de',
         'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'fi', 'fr', 'gl',
         'he', 'hi', 'hu', 'hr', 'hy', 'id', 'it', 'ja', 'ka', 'ko',
-        'la', 'lt', 'lv', 'ms', 'nn', 'nb', 'nl', 'pl', 'pt',
-        'ro', 'ru', 'sk', 'sl', 'sv', 'sr', 'ta', 'th', 'tr',
-        'uk', 'ur', 'uz', 'vi', 'zh',
+        'la', 'lt', 'lv', 'ms', 'nn', 'nb', 'nl',
+        'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'sr',
+        'ta', 'th', 'tr', 'uk', 'ur', 'uz', 'vi', 'zh',
 
         # Smaller but high-quality, high-depth Wikipedias
         'bn',
         'is', 'ku',
         'mk', 'my', 'ml', 'mn', 'mr', 'my',
         'or',
-        'si', 'te',
+        'si',
+        'te',
     ],
-
 }
 
+SAMPLED_REDDIT_SHARDS = [
+    '2009-02',
+    '2011-03',
+    '2013-04',
+    '2015-05',
+    '2017-06',
+    '2019-07',
+]
+
 COUNT_SOURCES = [
-    'opensubtitles', 'wikipedia', 'google-ngrams', 'jieba', 'oscar'
+    'opensubtitles', 'wikipedia', 'news', 'google-ngrams', 'jieba', 'oscar',
 ]
 
 FULL_TEXT_SOURCES = [
-    'wikipedia', 'opensubtitles',
-    'newscrawl', 'globalvoices'
+    'wikipedia', 'opensubtitles', 'newscrawl', 'globalvoices',
 ]
 MERGED_SOURCES = {
     'news': ['newscrawl', 'globalvoices'],
 }
+
+
+# Add merged sources like 'news' to the source list
+for merged in MERGED_SOURCES:
+    source_set = set()
+    for source in MERGED_SOURCES[merged]:
+        source_set |= set(SOURCE_LANGUAGES[source])
+    SOURCE_LANGUAGES[merged] = sorted(source_set)
+
+
 
 GOOGLE_NUM_1GRAM_SHARDS = {
     'en': 24,
@@ -177,30 +192,6 @@ GOOGLE_1GRAM_SHARDS = [
     'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'other',
     'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
 ]
-
-# These are the shard names for Google Books data, which I'm interested in
-# using as evidence about interesting phrases. I'm skipping numbers and 'other'
-# for now; the remaining files are split by the two-letter prefix of the first
-# token.
-#
-# Unfortunately, the 2-letter prefixes that never occur in any tokens in the
-# vocabulary correspond to files that simply don't exist. In order to avoid
-# errors, we need to exclude those prefixes: 'zq' from the 2grams, and four
-# additional prefixes from 3grams.
-
-GOOGLE_2GRAM_SHARDS = [
-    _c1 + _c2
-    for _c1 in 'abcdefghijklmnopqrstuvwxyz'
-    for _c2 in 'abcdefghijklmnopqrstuvwxyz_'
-    if _c1 + _c2 != 'zq'
-]
-GOOGLE_3GRAM_SHARDS = [
-    _c1 + _c2
-    for _c1 in 'abcdefghijklmnopqrstuvwxyz'
-    for _c2 in 'abcdefghijklmnopqrstuvwxyz_'
-    if _c1 + _c2 not in {'qg', 'qz', 'xg', 'xq', 'zq'}
-]
-
 
 LANGUAGE_SOURCES = defaultdict(list)
 for _source in COUNT_SOURCES:
@@ -239,26 +230,26 @@ def language_text_sources(lang):
     ]
 
 
-def _count_filename(source, lang):
-    if '/' in source:
-        return DATA + "/counts/{source}.{lang}.txt".format(source=source,
-                                                         lang=lang)
+def plain_text_input(source, lang):
+    """
+    Define which file or files contain compressed plain text, for the given
+    source and the given language.
+    """
+    if source == 'globalvoices':
+        return [f"{DATA}/downloaded/{source}/{lang}.txt.gz"]
+    elif source == 'news':
+        inputs = []
+        if lang in SOURCE_LANGUAGES['newscrawl']:
+            inputs.append(f"{DATA}/extracted/newscrawl/{lang}.txt.br")
+        if lang in SOURCE_LANGUAGES['globalvoices']:
+            inputs.append(f"{DATA}/downloaded/globalvoices/{lang}.txt.gz")
+        assert inputs, f"No news sources found for {lang}"
     else:
-        return DATA + "/counts/{source}/{lang}.txt".format(source=source,
-                                                       lang=lang)
+        return [f"{DATA}/extracted/{source}/{lang}.txt.br"]
 
 
-def multisource_counts_to_merge(multisource, lang):
-    """
-    Given a multi-source name like 'news' and a language code, find which sources
-    of counts should be merged to produce it.
-    """
-    result = [
-        _count_filename(source, lang)
-        for source in MERGED_SOURCES[multisource]
-        if lang in SOURCE_LANGUAGES[source]
-    ]
-    return result
+def counts_input(source, lang):
+    return f"{DATA}/counts/{source}/{lang}.txt"
 
 
 # Top-level rules
@@ -279,15 +270,26 @@ rule frequencies:
 
 # Downloaders
 # ===========
+# This stage is mostly about locating resources on external sites, and downloading them
+# in their original format.
+#
+# There is no downloader for OSCAR, because HuggingFace abstracts over the format and
+# provides a streaming interface to it.
 
+
+# The original format of Google Ngrams is messy and unhelpful, so as we download it,
+# we process it with an awk script to convert it to a more useful form.
 rule download_google_1grams:
     resources:
         download=1
     output:
-        DATA + "/downloaded/google/1grams-{lang}.txt"
+        DATA + "/downloaded/google-ngrams/1grams-{lang}.txt"
     run:
-        source_lang = GOOGLE_LANGUAGE_MAP.get(wildcards.lang, wildcards.lang)
+        source_lang = map_source_language('google-ngrams', wildcards.lang)
         nshards = GOOGLE_NUM_1GRAM_SHARDS[wildcards.lang]
+        
+        # Make sure we're not appending to an existing file
+        shell("rm -f {output}")
         for shard in range(nshards):
             url = f'http://storage.googleapis.com/books/ngrams/books/20200217/{source_lang}/1-{shard:>05}-of-{nshards:>05}.gz'
             shell("curl -Lf '{url}' | gunzip -c | awk -f scripts/google-sum-columns.awk >> {output}")
@@ -302,6 +304,17 @@ rule download_opensubtitles:
     run:
         source_lang = map_source_language('opensubtitles', wildcards.lang)
         shell("wget 'http://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/mono/OpenSubtitles.raw.{source_lang}.gz' -O {output}")
+
+
+rule download_globalvoices:
+    output:
+        DATA + "/downloaded/globalvoices/{lang}.txt.gz"
+    resources:
+        download=1, opusdownload=1
+    priority: 0
+    run:
+        source_lang = map_source_language('globalvoices', wildcards.lang)
+        shell("wget 'http://opus.nlpl.eu/download.php?f=GlobalVoices/v2018q4/mono/{source_lang}.txt.gz' -O {output}")
 
 
 rule download_wikipedia:
@@ -320,9 +333,110 @@ rule download_newscrawl:
         DATA + "/downloaded/newscrawl-2014-monolingual.tar.gz"
     resources:
         download=1
-    run:
-        shell("wget 'http://www.statmt.org/wmt15/training-monolingual-news-2014.tgz' -O {output}")
+    shell:
+        "wget 'http://www.statmt.org/wmt15/training-monolingual-news-2014.tgz' -O {output}"
 
+
+# For possible future use: an enormous book corpus maintained by Shawn Presser.
+# Apparently this emulates a book corpus that LLMs are trained on. I don't know
+# yet if we want to use it.
+rule download_books3:
+    output:
+        DATA + "/downloaded/books3/books3.tar.gz"
+    resources:
+        download=1
+    shell:
+        "wget 'https://the-eye.eu/public/AI/pile_preliminary_components/books3.tar.gz' -O {output}"
+
+
+# Extracting downloaded data
+# ==========================
+#
+# In this stage, our goal is to produce individual files of compressed plain
+# text from each resource.
+#
+# If a resource is already in the form of .txt.gz files that need no
+# preprocessing, we use it as is. Otherwise, we preprocess the resource to
+# produce .txt.br files. (All else being equal, we use brotli compression,
+# which is very fast and effective at compressing plain text.)
+
+rule extract_wikipedia:
+    input:
+        DATA + "/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
+    output:
+        DATA + "/extracted/wikipedia/{lang}.txt.br"
+    shell:
+        # uses the 'wiki2text' command from rspeer's wikiparsec
+        "bunzip2 -c {input} | wiki2text | brotli -c > {output}"
+
+
+def inputs_for_extract_opensubtitles(wildcards):
+    lang = wildcards.lang
+    if lang == 'pt':
+        return [
+            f"{DATA}/downloaded/opensubtitles/pt-BR.txt.gz",
+            f"{DATA}/downloaded/opensubtitles/pt-PT.txt.gz",
+        ]
+    else:
+        return [f"{DATA}/downloaded/opensubtitles/{lang}.txt.gz"]
+
+
+rule extract_opensubtitles:
+    input:
+        inputs_for_extract_opensubtitles
+    output:
+        DATA + "/extracted/opensubtitles/{lang}.txt.br"
+    shell:
+        # minimal pre-processing: remove lines that start and end with parentheses,
+        # as those are usually filler subtitles like (Music).
+        # Replace acute accents over nothing with apostrophes.
+        """zcat {input} | egrep -v '^[(].*[)]$' | sed "s/´/'/g" | brotli -c > {output}"""
+
+
+rule extract_newscrawl:
+    input:
+        DATA + "/downloaded/newscrawl-2014-monolingual.tar.gz"
+    output:
+        expand(
+            temp(DATA + "/extracted/newscrawl/{lang}.txt.br"),
+            lang=SOURCE_LANGUAGES['newscrawl']
+        )
+    run:
+        ex_dir = f"{DATA}/extracted/newscrawl/training-monolingual-news-2014/"
+        shell("tar xf {input} -C {DATA}/extracted/newscrawl")
+
+        # Re-compress each file individually, using brotli
+        for lang in SOURCE_LANGUAGES['newscrawl']:
+            shell(
+                "brotli -c {ex_dir}/news.2014.{lang}.shuffled > "
+                "{DATA}/extracted/newscrawl/{lang}.txt.br && "
+                "rm {ex_dir}/news.2014.{lang}.shuffled"
+            )
+
+
+rule concatenate_news:
+    input:
+        inputs_for_news
+        DATA + "/extracted/newscrawl/{lang}.txt.br",
+        DATA + "/downloaded/globalvoices/{lang}.txt.gz"
+    output:
+        DATA + "/extracted/news/{lang}.txt.br"
+    run:
+        newscrawl, globalvoices = input
+        tmp_output = f"{DATA}/extracted/news/{wildcards.lang}.txt"
+        shell("rm -f {output}")
+        shell("brotli -dc {newscrawl} >> {tmp_output}")
+        shell("gunzip -c {globalvoices} >> {tmp_output}")
+        shell("brotli {tmp_output}")
+
+
+rule extract_reddit:
+    output:
+        DATA + "/mixed-languages/reddit/"
+
+
+# Diagnostics
+# ===========
 
 def show_language_stats():
     import langcodes
@@ -335,14 +449,9 @@ def show_language_stats():
         count = len(language_count_sources(language))
         if count >= 2:
             print("{}\t{}\t{}".format(
-                language, 
+                language,
                 count,
                 langcodes.get(language).display_name(),
             ))
 
 show_language_stats()
-
-
-# Extracting downloaded data
-# ==========================
-
