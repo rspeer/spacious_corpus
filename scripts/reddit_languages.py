@@ -8,13 +8,21 @@ def filter_item(item, lang):
     score = item['score']
     text = item['text']
     subreddit = item['subreddit']
+    
+    # Posts in English require a score of 4 or more to be part of the corpus.
+    # In other languages, we require a score of 2 or more.
     if lang != 'en':
         score += 2
     return (
         len(item['text']) >= 40
-        and score >= 5
+        and score >= 4
         and 'jerk' not in subreddit
+        and 'okbuddy' not in subreddit
         and 'gonewild' not in subreddit
+        # the next lines match several COVID-denial subreddits that were banned
+        # in September 2021
+        and 'newnormal' not in subreddit
+        and 'new_normal' not in subreddit
         and not item.get('quarantined')
         and 'i am a bot' not in text.casefold()
         and "i'm a bot" not in text.casefold()
@@ -36,7 +44,7 @@ def run():
                 score = item['score']
                 print(f'{lang_match}\t{score}\t{subreddit}\t{textform}')
 
-# stopped at pt
+
 SUBREDDIT_LANGUAGES = {
     '600euro': ['de'],
     'aarhus': ['da'],
@@ -361,7 +369,5 @@ SUBREDDIT_LANGUAGES = {
     'youtubememesfr': ['fr'],
 }
 
-
-# remove "i am a bot" posts
 
 run()

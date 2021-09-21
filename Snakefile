@@ -364,10 +364,11 @@ rule extract_wikipedia:
     input:
         DATA + "/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
     output:
-        DATA + "/extracted/wikipedia/{lang}.txt.br"
-    shell:
+        DATA + "/tokens/wikipedia/{lang}/{lang}_000.spacy"
+    run:
         # uses the 'wiki2text' command from rspeer's wikiparsec
-        "bunzip2 -c {input} | wiki2text | brotli -c > {output}"
+        out_dir = f"{DATA}/tokens/wikipedia/{wildcards.lang}"
+        shell("bunzip2 -c {input} | wiki2text | spacious-corpus-tokenize {wildcards.lang} {out_dir}")
 
 
 def inputs_for_extract_opensubtitles(wildcards):
@@ -412,22 +413,6 @@ rule extract_newscrawl:
                 "{DATA}/extracted/newscrawl/{lang}.txt.br && "
                 "rm {ex_dir}/news.2014.{lang}.shuffled"
             )
-
-
-rule concatenate_news:
-    input:
-        inputs_for_news
-        DATA + "/extracted/newscrawl/{lang}.txt.br",
-        DATA + "/downloaded/globalvoices/{lang}.txt.gz"
-    output:
-        DATA + "/extracted/news/{lang}.txt.br"
-    run:
-        newscrawl, globalvoices = input
-        tmp_output = f"{DATA}/extracted/news/{wildcards.lang}.txt"
-        shell("rm -f {output}")
-        shell("brotli -dc {newscrawl} >> {tmp_output}")
-        shell("gunzip -c {globalvoices} >> {tmp_output}")
-        shell("brotli {tmp_output}")
 
 
 rule extract_reddit:

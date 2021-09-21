@@ -33,9 +33,22 @@ def tokenize_stdin(lang, output_dir, chunk_size=100000, use_ftfy=True):
                 doc = nlp(line)
                 doc_bin.add(doc)
 
-        filename = path / f"part_{chunk_num:<03d}.spacy"
+        filename = path / f"{lang}_{chunk_num:>03d}.spacy"
         doc_bin.to_disk(filename)
 
 
-if __name__ == '__main__':
+def iterate_docs(dirname, lang):
+    nlp = spacy.blank(lang)
+    path = Path(dirname)
+    for filename in path.iterdir():
+        doc_bin = DocBin(attrs=[])
+        doc_bin.from_disk(filename)
+        yield from doc_bin.get_docs(nlp.vocab)
+
+
+def main():
     typer.run(tokenize_stdin)
+
+
+if __name__ == '__main__':
+    main()
