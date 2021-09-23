@@ -87,7 +87,7 @@ SOURCE_LANGUAGES = {
     ],
 
     # Jieba's built-in wordlist (supposedly MIT licensed?)
-    'jieba': ['zh'],
+    'jieba': ['zh-Hans'],
 
     # NewsCrawl 2014, from the EMNLP Workshops on Statistical Machine Translation
     'newscrawl': ['cs', 'de', 'en', 'fi', 'fr', 'ru'],
@@ -160,6 +160,7 @@ COUNT_SOURCES = [
 FULL_TEXT_SOURCES = [
     'wikipedia', 'opensubtitles', 'newscrawl', 'globalvoices',
 ]
+
 MERGED_SOURCES = {
     'news': ['newscrawl', 'globalvoices'],
 }
@@ -337,7 +338,9 @@ rule download_newscrawl:
         "wget 'http://www.statmt.org/wmt15/training-monolingual-news-2014.tgz' -O {output}"
 
 
-# For possible future use: an enormous book corpus maintained by Shawn Presser.
+# For possible future use: an enormous book corpus maintained by Shawn Presser,
+# created by extracting text from the Bibliotik torrent.
+#
 # Apparently this emulates a book corpus that LLMs are trained on. I don't know
 # yet if we want to use it.
 rule download_books3:
@@ -364,11 +367,10 @@ rule extract_wikipedia:
     input:
         DATA + "/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
     output:
-        DATA + "/tokens/wikipedia/{lang}/{lang}_000.spacy"
-    run:
+        DATA + "/tokens/wikipedia/{lang}.zip"
+    shell:
         # uses the 'wiki2text' command from rspeer's wikiparsec
-        out_dir = f"{DATA}/tokens/wikipedia/{wildcards.lang}"
-        shell("bunzip2 -c {input} | wiki2text | spacious-corpus-tokenize {wildcards.lang} {out_dir}")
+        "bunzip2 -c {input} | wiki2text | spacious-corpus-tokenize {wildcards.lang} {output}"
 
 
 def inputs_for_extract_opensubtitles(wildcards):
@@ -386,14 +388,22 @@ rule extract_opensubtitles:
     input:
         inputs_for_extract_opensubtitles
     output:
-        DATA + "/extracted/opensubtitles/{lang}.txt.br"
+        DATA + "/tokens/opensubtitles/{lang}.zip"
     shell:
         # minimal pre-processing: remove lines that start and end with parentheses,
         # as those are usually filler subtitles like (Music).
         # Replace acute accents over nothing with apostrophes.
-        """zcat {input} | egrep -v '^[(].*[)]$' | sed "s/´/'/g" | brotli -c > {output}"""
+        """zcat {input} | egrep -v '^[(].*[)]$' | sed "s/´/'/g" | spacious-corpus-tokenize {wildcards.lang} {output}"""
 
 
+rule extract_oscar:
+    output:
+        DATA + "/tokens/oscar/{lang}.zip"
+    shell:
+        "spacious-corpus-oscar {wildcards.lang} {output} --cache-dir {DATA}/cache"
+
+
+# to be fixed
 rule extract_newscrawl:
     input:
         DATA + "/downloaded/newscrawl-2014-monolingual.tar.gz"
@@ -414,7 +424,7 @@ rule extract_newscrawl:
                 "rm {ex_dir}/news.2014.{lang}.shuffled"
             )
 
-
+# lots to be done here
 rule extract_reddit:
     output:
         DATA + "/mixed-languages/reddit/"
