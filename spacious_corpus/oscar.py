@@ -1,12 +1,14 @@
 import datasets
-import typer
+import itertools
 import pathlib
+import typer
+from tqdm import tqdm
 from typing import Optional
 
 from .tokens import tokenize_stream
 
 
-def stream_oscar(lang, num_lines, cache_path):
+def stream_oscar(lang, num_lines, cache_path, progress=True):
     dataset = datasets.load_dataset(
         'oscar',
         f'unshuffled_deduplicated_{lang}',
@@ -14,7 +16,11 @@ def stream_oscar(lang, num_lines, cache_path):
         streaming=True,
         cache_dir=cache_path
     )
-    for item in dataset:
+    iterator = itertools.islice(dataset, num_lines)
+    if progress:
+        iterator = tqdm(iterator, total=num_lines)
+        iterator.set_description(f'oscar.{lang}')
+    for item in iterator:
         yield item['text']
 
 
@@ -23,7 +29,7 @@ def tokenize_oscar(
     output_file: str,
     cache_dir: Optional[str] = typer.Option(None, help="Directory to download OSCAR data into"),
     chunk_size: int = 100_000,
-    num_lines: int = 10_000_000
+    num_lines: int = 1_000_000
 ):
     cache_path = pathlib.Path(cache_dir)
     cache_path.mkdir(exist_ok=True)
