@@ -1,9 +1,6 @@
 import os
 from collections import defaultdict
 
-# A path to the directory where the data build should happen
-DATA = 'data'
-
 # Update this to be a currently-available date stamp for a Wikipedia export
 # (TODO: automatically determine what the correct version is)
 WP_VERSION = '20210901'
@@ -154,7 +151,7 @@ SAMPLED_REDDIT_SHARDS = [
 ]
 
 COUNT_SOURCES = [
-    'opensubtitles', 'wikipedia', 'news', 'google-ngrams', 'jieba', 'oscar',
+    'opensubtitles', 'wikipedia', 'newscrawl', 'globalvoices', 'google-ngrams', 'oscar',
 ]
 
 FULL_TEXT_SOURCES = [
@@ -215,7 +212,7 @@ def language_count_sources(lang):
     Get all the sources of word counts we have in a language.
     """
     return [
-        DATA + "/counts/{source}/{lang}.txt".format(source=source, lang=lang)
+        f"data/counts/{source}/{lang}.txt"
         for source in LANGUAGE_SOURCES[lang]
     ]
 
@@ -225,7 +222,7 @@ def language_text_sources(lang):
     Get all the sources of tokenized text we have in a language.
     """
     return [
-        DATA + "/tokenized/{source}/{lang}.txt".format(source=source, lang=lang)
+        f"data/tokens/{source}/{lang}.txt"
         for source in LANGUAGE_SOURCES[lang]
         if source in FULL_TEXT_SOURCES
     ]
@@ -237,20 +234,20 @@ def plain_text_input(source, lang):
     source and the given language.
     """
     if source == 'globalvoices':
-        return [f"{DATA}/downloaded/{source}/{lang}.txt.gz"]
+        return [f"data/downloaded/{source}/{lang}.txt.gz"]
     elif source == 'news':
         inputs = []
         if lang in SOURCE_LANGUAGES['newscrawl']:
-            inputs.append(f"{DATA}/extracted/newscrawl/{lang}.txt.br")
+            inputs.append(f"data/extracted/newscrawl/{lang}.txt.br")
         if lang in SOURCE_LANGUAGES['globalvoices']:
-            inputs.append(f"{DATA}/downloaded/globalvoices/{lang}.txt.gz")
+            inputs.append(f"data/downloaded/globalvoices/{lang}.txt.gz")
         assert inputs, f"No news sources found for {lang}"
     else:
-        return [f"{DATA}/extracted/{source}/{lang}.txt.br"]
+        return [f"data/extracted/{source}/{lang}.txt.br"]
 
 
 def counts_input(source, lang):
-    return f"{DATA}/counts/{source}/{lang}.txt"
+    return f"data/counts/{source}/{lang}.txt"
 
 
 # Top-level rules
@@ -258,15 +255,15 @@ def counts_input(source, lang):
 
 rule wordfreq:
     input:
-        expand(DATA + "/wordfreq/small_{lang}.msgpack.gz",
+        expand("data/wordfreq/small_{lang}.msgpack.gz",
                lang=SUPPORTED_LANGUAGES),
-        expand(DATA + "/wordfreq/large_{lang}.msgpack.gz",
+        expand("data/wordfreq/large_{lang}.msgpack.gz",
                lang=LARGE_LANGUAGES),
-        DATA + "/wordfreq/jieba_zh.txt"
+        "data/wordfreq/jieba_zh.txt"
 
 rule frequencies:
     input:
-        expand(DATA + "/freqs/{lang}.txt", lang=SUPPORTED_LANGUAGES)
+        expand("data/freqs/{lang}.txt", lang=SUPPORTED_LANGUAGES)
 
 
 # Downloaders
@@ -284,7 +281,7 @@ rule download_google_1grams:
     resources:
         download=1
     output:
-        DATA + "/downloaded/google-ngrams/1grams-{lang}.txt"
+        "data/downloaded/google-ngrams/1grams-{lang}.txt"
     run:
         source_lang = map_source_language('google-ngrams', wildcards.lang)
         nshards = GOOGLE_NUM_1GRAM_SHARDS[wildcards.lang]
@@ -293,12 +290,12 @@ rule download_google_1grams:
         shell("rm -f {output}")
         for shard in range(nshards):
             url = f'http://storage.googleapis.com/books/ngrams/books/20200217/{source_lang}/1-{shard:>05}-of-{nshards:>05}.gz'
-            shell("curl -Lf '{url}' | gunzip -c | awk -f scripts/google-sum-columns.awk >> {output}")
+            shell("curl -Lf '{url}' | gunzip -c | awk -f scripts/google-sum-columns.awk | grep '[0-9][0-9][0-9]$' >> {output}")
 
 
 rule download_opensubtitles:
     output:
-        DATA + "/downloaded/opensubtitles/{lang}.txt.gz"
+        "data/downloaded/opensubtitles/{lang}.txt.gz"
     resources:
         download=1, opusdownload=1
     priority: 0
@@ -309,7 +306,7 @@ rule download_opensubtitles:
 
 rule download_globalvoices:
     output:
-        DATA + "/downloaded/globalvoices/{lang}.txt.gz"
+        "data/downloaded/globalvoices/{lang}.txt.gz"
     resources:
         download=1, opusdownload=1
     priority: 0
@@ -320,7 +317,7 @@ rule download_globalvoices:
 
 rule download_wikipedia:
     output:
-        DATA + "/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
+        "data/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
     resources:
         download=1, wpdownload=1
     priority: 0
@@ -331,7 +328,7 @@ rule download_wikipedia:
 
 rule download_newscrawl:
     output:
-        DATA + "/downloaded/newscrawl-2014-monolingual.tar.gz"
+        "data/downloaded/newscrawl-2014-monolingual.tar.gz"
     resources:
         download=1
     shell:
@@ -345,7 +342,7 @@ rule download_newscrawl:
 # yet if we want to use it.
 rule download_books3:
     output:
-        DATA + "/downloaded/books3/books3.tar.gz"
+        "data/downloaded/books3/books3.tar.gz"
     resources:
         download=1
     shell:
@@ -365,9 +362,9 @@ rule download_books3:
 
 rule extract_wikipedia:
     input:
-        DATA + "/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
+        "data/downloaded/wikipedia/wikipedia_{lang}.xml.bz2"
     output:
-        DATA + "/tokens/wikipedia/{lang}.zip"
+        "data/tokens/wikipedia/{lang}.zip"
     shell:
         # uses the 'wiki2text' command from rspeer's wikiparsec
         "bunzip2 -c {input} | wiki2text | spacious-corpus-tokenize {wildcards.lang} {output}"
@@ -377,18 +374,18 @@ def inputs_for_extract_opensubtitles(wildcards):
     lang = wildcards.lang
     if lang == 'pt':
         return [
-            f"{DATA}/downloaded/opensubtitles/pt-BR.txt.gz",
-            f"{DATA}/downloaded/opensubtitles/pt-PT.txt.gz",
+            f"data/downloaded/opensubtitles/pt-BR.txt.gz",
+            f"data/downloaded/opensubtitles/pt-PT.txt.gz",
         ]
     else:
-        return [f"{DATA}/downloaded/opensubtitles/{lang}.txt.gz"]
+        return [f"data/downloaded/opensubtitles/{lang}.txt.gz"]
 
 
 rule extract_opensubtitles:
     input:
         inputs_for_extract_opensubtitles
     output:
-        DATA + "/tokens/opensubtitles/{lang}.zip"
+        "data/tokens/opensubtitles/{lang}.zip"
     shell:
         # minimal pre-processing: remove lines that start and end with parentheses,
         # as those are usually filler subtitles like (Music).
@@ -398,37 +395,79 @@ rule extract_opensubtitles:
 
 rule extract_oscar:
     output:
-        DATA + "/tokens/oscar/{lang}.zip"
+        "data/tokens/oscar/{lang}.zip"
     shell:
-        "spacious-corpus-oscar {wildcards.lang} {output} --cache-dir {DATA}/cache"
+        "spacious-corpus-oscar {wildcards.lang} {output} --cache-dir data/cache"
 
 
 # to be fixed
 rule extract_newscrawl:
     input:
-        DATA + "/downloaded/newscrawl-2014-monolingual.tar.gz"
+        "data/downloaded/newscrawl-2014-monolingual.tar.gz"
     output:
         expand(
-            temp(DATA + "/extracted/newscrawl/{lang}.txt.br"),
+            "data/extracted/newscrawl/training-monolingual-news-2014/news.2014.{lang}.shuffled",
             lang=SOURCE_LANGUAGES['newscrawl']
         )
     run:
-        ex_dir = f"{DATA}/extracted/newscrawl/training-monolingual-news-2014/"
-        shell("tar xf {input} -C {DATA}/extracted/newscrawl")
+        ex_dir = f"data/extracted/newscrawl/training-monolingual-news-2014/"
+        shell("tar xf {input} -C data/extracted/newscrawl")
 
-        # Re-compress each file individually, using brotli
-        for lang in SOURCE_LANGUAGES['newscrawl']:
-            shell(
-                "brotli -c {ex_dir}/news.2014.{lang}.shuffled > "
-                "{DATA}/extracted/newscrawl/{lang}.txt.br && "
-                "rm {ex_dir}/news.2014.{lang}.shuffled"
-            )
 
-# lots to be done here
-rule extract_reddit:
+rule tokenize_newscrawl:
+    input:
+        "data/extracted/newscrawl/training-monolingual-news-2014/news.2014.{lang}.shuffled"
     output:
-        DATA + "/mixed-languages/reddit/"
+        "data/tokens/newscrawl/{lang}.zip"
+    shell:
+        "spacious-corpus-tokenize {wildcards.lang} {output} < {input}"
 
+rule extract_globalvoices:
+    input:
+        "data/downloaded/globalvoices/{lang}.txt.gz"
+    output:
+        "data/tokens/globalvoices/{lang}.zip"
+    shell:
+        "gunzip -c {input} | spacious-corpus-tokenize {wildcards.lang} {output}"
+
+# Counting
+# ========
+
+rule count_tokens:
+    input:
+        "data/tokens/{source}/{lang}.zip"
+    output:
+        "data/counts/{source}/{lang}.txt"
+    shell:
+        "spacious-corpus-count {wildcards.lang} {input} {output}"
+
+rule recount_google:
+    input:
+        "data/downloaded/google-ngrams/1grams-{lang}.txt"
+    output:
+        "data/counts/google-ngrams/{lang}.txt"
+    shell:
+        "spacious-corpus-recount {wildcards.lang} {input} {output}"
+
+# Merging
+# =======
+
+def inputs_for_merge_language_freqs(wildcards):
+    lang = wildcards.lang
+    sources = LANGUAGE_SOURCES[lang]
+    return [
+        f"data/counts/{source}/{lang}.txt"
+        for source in sources
+    ]
+
+
+rule merge_language_freqs:
+    input:
+        inputs_for_merge_language_freqs
+    output:
+        "data/freqs/{lang}.txt"
+    shell:
+        "spacious-corpus-merge {wildcards.lang} {input} {output}"
 
 # Diagnostics
 # ===========
