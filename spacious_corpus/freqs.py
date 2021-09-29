@@ -12,14 +12,16 @@ def counts_to_freqs(infile: str) -> Dict[str, float]:
     """
     total = None
     freqs = {}
-    for line in infile:
-        word, strcount = line.rstrip().split('\t', 1)
-        count = int(strcount)
-        if word == '__total__':
-            total = count
-        else:
-            freq = count / total
-            freqs[word] = freq
+    for line in open(infile, encoding='utf-8'):
+        line = line.rstrip()
+        if line:
+            word, strcount = line.split('\t', 1)
+            count = int(strcount)
+            if word == '__total__':
+                total = count
+            else:
+                freq = count / total
+                freqs[word] = freq
     return freqs
 
 
