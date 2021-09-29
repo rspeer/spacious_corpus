@@ -284,7 +284,7 @@ def smash_numbers(text):
     >>> smash_numbers("r2d2")
     'r2d2'
     >>> smash_numbers("v3.2")
-    'v#.#'
+    'NUM:v#.#'
     >>> smash_numbers("24,601")
     'NUM:##,###'
     """
