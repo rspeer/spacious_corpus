@@ -469,17 +469,22 @@ rule merge_language_freqs:
     shell:
         "spacious-corpus-merge {wildcards.lang} {input} {output}"
 
-# Diagnostics
-# ===========
 
-def show_language_stats():
+# Build all the frequencies
+# =========================
+
+
+def get_available_languages():
     import langcodes
     languages = set()
+    available_languages = []
     for source_type in COUNT_SOURCES:
         for language in SOURCE_LANGUAGES[source_type]:
             languages.add(language)
 
     for language in sorted(languages):
+        if language == 'ko':
+            continue  # unsure about tokenization so far
         count = len(language_count_sources(language))
         if count >= 2:
             print("{}\t{}\t{}".format(
@@ -487,5 +492,26 @@ def show_language_stats():
                 count,
                 langcodes.get(language).display_name(),
             ))
+        if count >= 3:
+            available_languages.append(language)
+    return available_languages
 
-show_language_stats()
+# Top level
+# =========
+
+
+def all_language_inputs(wildcards):
+    return [
+        f"data/freqs/{lang}.txt"
+        for lang in get_available_languages()
+    ]
+
+rule all:
+    input:
+        all_language_inputs
+
+
+# Diagnostics
+# ===========
+
+get_available_languages()

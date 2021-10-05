@@ -300,7 +300,7 @@ def normalize_token(text: str, lang: str):
     Apply all text normalizations, and replace multi-digit numbers with a
     representation of their shape (as in `smash_numbers`).
     """
-    return smash_numbers(normalize_text(text, lang))   
+    return smash_numbers(normalize_text(text, lang))
 
 
 def tokenize_stream(lang, stream, output_file, chunk_size=1_000_000, use_ftfy=True):
