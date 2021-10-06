@@ -1,4 +1,4 @@
-# spacious-corpus
+# spacious_corpus
 
 A build process for collecting plain-text corpus data in various languages.
 
