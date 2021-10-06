@@ -93,9 +93,11 @@ in      0.019477
 These lexemes come from text in a normal form specified in `spacious_corpus.nlp`:
 
 - Text is NFC or NFKC normalized, depending on the language
-- Text is case-folded to lowercase
-- Vowel marks are removed, in languages where they are optional and uncommon
 - Multi-script languages (such as Serbian) are transliterated into Latin letters
+- Text is case-folded to lowercase
+- In languages that use dotted vs. dotless I (like Turkish), the case-folding is
+  aware of the different mapping of letters
+- Vowel marks are removed, in languages where they are optional and uncommon
 
 When tokenizing and counting tokens, we apply more changes:
 
