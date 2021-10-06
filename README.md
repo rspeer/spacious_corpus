@@ -11,16 +11,18 @@ data, in a number of different languages.
 
 [snakemake]: https://snakemake.readthedocs.io/en/stable/
 
-This process originates from [exquisite-corpus][], but here we focus on data sources and formats we want to use with SpaCy, and eliminate much of its accumulated complexity.
+This process originates from [exquisite-corpus][], but here we focus on data
+sources and formats we want to use with SpaCy, and eliminate much of its
+accumulated complexity.
 
 [exquisite-corpus]: https://github.com/LuminosoInsight/exquisite-corpus
 
 
 ## Setup and dependencies
 
-Run `pip install -e .` to install `spacious_corpus` as a package.
-The Python dependencies of this code appear in `setup.cfg`, and will be 
-installed as a result of this command.
+Run `pip install -e .` to install `spacious_corpus` as a package. The Python
+dependencies of this code appear in `setup.cfg`, and will be installed as a
+result of this command.
 
 Another dependency is on [wikiparsec][], Elia's toolkit for parsing WikiText,
 which is written in Haskell. Follow its instructions to build and install it.
@@ -29,22 +31,22 @@ which is written in Haskell. Follow its instructions to build and install it.
 
 You also need command line tools such as `wget`, `curl`, and `bunzip2`.
 
-Make sure that you have enough hard disk space available. All of the
-downloaded and built data will go into the `data/` subdirectory, so if you
-need to, you can make this a symbolic link to a separate disk.
+Make sure that you have enough hard disk space available. All of the downloaded
+and built data will go into the `data/` subdirectory, so if you need to, you can
+make this a symbolic link to a separate disk.
 
 ## Running a build
 
 The Snakefile describes how various data is built. The script `./make.sh`
 invokes Snakemake with appropriate options so that it schedules up to 8
 processes in parallel, and (for example) makes sure not to get booted from
-Wikimedia's download server by downloading too many of their files at the
-same time.
+Wikimedia's download server by downloading too many of their files at the same
+time.
 
-You can give an individual file (or multiple files) as the target of
-`make.sh`, and Snakemake will figure out how to build it from all of its
-dependencies. The end of the Snakefile provides some top-level rules that
-don't correspond to files:
+You can give an individual file (or multiple files) as the target of `make.sh`,
+and Snakemake will figure out how to build it from all of its dependencies. The
+end of the Snakefile provides some top-level rules that don't correspond to
+files:
 
 * `./make.sh freqs`
   
@@ -71,8 +73,8 @@ don't correspond to files:
 ### Frequencies
 
 Frequencies appear in `data/freqs/{lang}.txt`, as tab-separated lexemes and
-frequencies. The frequencies are scaled to add up to 0.99 (taking a rough
-guess that out-of-vocabulary words are 1% of the total).
+frequencies. The frequencies are scaled to add up to 0.99 (taking a rough guess
+that out-of-vocabulary words are 1% of the total).
 
 Here are the first several lines of `data/freqs/en.txt`:
 
