@@ -243,25 +243,38 @@ def plain_text_input(source, lang):
         return [f"data/extracted/{source}/{lang}.txt.br"]
 
 
-def counts_input(source, lang):
-    return f"data/counts/{source}/{lang}.txt"
-
-
 # Top-level rules
 # ===============
 
-rule wordfreq:
-    input:
-        expand("data/wordfreq/small_{lang}.msgpack.gz",
-               lang=SUPPORTED_LANGUAGES),
-        expand("data/wordfreq/large_{lang}.msgpack.gz",
-               lang=LARGE_LANGUAGES),
-        "data/wordfreq/jieba_zh.txt"
+def all_freqs_inputs(wildcards):
+    return [
+        f"data/freqs/{lang}.txt"
+        for lang in get_available_languages()
+    ]
 
-rule frequencies:
-    input:
-        expand("data/freqs/{lang}.txt", lang=SUPPORTED_LANGUAGES)
 
+rule freqs:
+    input:
+        all_freqs_inputs
+
+
+rule wikipedia:
+    input:
+        expand("data/tokens/wikipedia/{lang}.zip", lang=SOURCE_LANGUAGES['wikipedia'])
+
+
+rule opensubtitles:
+    input:
+        expand("data/tokens/opensubtitles/{lang}.zip", lang=SOURCE_LANGUAGES['opensubtitles'])
+
+
+rule oscar:
+    input:
+        expand("data/tokens/oscar/{lang}.zip", lang=SOURCE_LANGUAGES['oscar'])
+
+
+def all_wikipedia_inputs(wildcards):
+    return language_text_sources()
 
 # Downloaders
 # ===========
@@ -462,8 +475,11 @@ rule merge_language_freqs:
         "spacious-corpus-merge {wildcards.lang} {input} {output}"
 
 
-# Build all the frequencies
-# =========================
+# Helper for building all the frequencies
+# =======================================
+#
+# prints a table of all languages that have at least 2 sources,
+# and all languages with at least 3 sources will be built
 
 
 def get_available_languages():
@@ -486,40 +502,3 @@ def get_available_languages():
             available_languages.append(language)
     return available_languages
 
-
-def all_freqs_inputs(wildcards):
-    return [
-        f"data/freqs/{lang}.txt"
-        for lang in get_available_languages()
-    ]
-
-
-rule freqs:
-    input:
-        all_freqs_inputs
-
-
-rule wikipedia:
-    input:
-        expand("data/tokens/wikipedia/{lang}.zip", lang=SOURCE_LANGUAGES['wikipedia'])
-
-
-rule opensubtitles:
-    input:
-        expand("data/tokens/opensubtitles/{lang}.zip", lang=SOURCE_LANGUAGES['opensubtitles'])
-
-
-rule oscar:
-    input:
-        expand("data/tokens/oscar/{lang}.zip", lang=SOURCE_LANGUAGES['oscar'])
-
-
-def all_wikipedia_inputs(wildcards):
-    return language_text_sources()
-
-
-
-# Diagnostics
-# ===========
-
-get_available_languages()
