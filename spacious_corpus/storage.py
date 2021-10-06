@@ -2,7 +2,6 @@
 This module provides the DocZip class, for reading and writing large numbers
 of tokenized documents in spaCy form.
 """
-import spacy
 from spacy.tokens import DocBin, Doc
 
 import itertools
@@ -10,7 +9,7 @@ from zipfile import ZipFile
 import tempfile
 from pathlib import Path
 from typing import Iterable, Iterator, Union, List
-
+from .nlp import make_nlp_stack
 
 PathLike = Union[Path, str]
 
@@ -38,8 +37,9 @@ class DocZip:
 
         # Does self.nlp need to be configurable to support different vocabs?
         # Should we serialize the vocab in the file as well?
-        self.nlp = spacy.blank(lang)
+        self.nlp = make_nlp_stack(lang)
         self.path = path
+
 
     @staticmethod
     def open(path: PathLike, lang: str) -> "DocZip":

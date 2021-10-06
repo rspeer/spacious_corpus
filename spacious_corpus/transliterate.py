@@ -64,11 +64,11 @@ SR_LATN_TABLE = {
     ord('Ѕ'): 'Dz',  ord('ѕ'): 'dz',
     ord('Ѓ'): 'Ǵ',   ord('ѓ'): 'ǵ',
     ord('Ќ'): 'Ḱ',   ord('ќ'): 'ḱ',
-}
 
-AZ_LATN_TABLE = SR_LATN_TABLE.copy()
-AZ_LATN_TABLE.update({
-    # Distinct Azerbaijani letters
+    # Tajik letter
+    ord('Ҷ'): 'Dž',  ord('ҷ'): 'dž',
+
+    # Azerbaijani letters
     ord('Ҹ'): 'C',  ord('ҹ'): 'c',
     ord('Ә'): 'Ə',  ord('ә'): 'ə',
     ord('Ғ'): 'Ğ',  ord('ғ'): 'ğ',
@@ -77,6 +77,23 @@ AZ_LATN_TABLE.update({
     ord('Ҝ'): 'G',  ord('ҝ'): 'g',
     ord('Ү'): 'Ü',  ord('ү'): 'ü',
 
+    # Kazakh letters
+    ord('Қ'): 'Q',   ord('қ'): 'q',
+    ord('Ә'): "A'",  ord('ә'): "a'",
+    ord('Ң'): "N'",  ord('ң'): "n'",
+    ord('Ұ'): 'U',   ord('ұ'): "u",
+
+    # Obsolete letters - transcribe them like Polish when appropriate
+    ord('Ѣ'): 'Ě',   ord('ѣ'): 'ě',
+    ord('Ѧ'): 'Ę',   ord('ѧ'): 'ę',
+    ord('Ѩ'): 'Ję',  ord('ѩ'): 'ję',
+    ord('Ѫ'): 'Ą',   ord('ѫ'): 'ą',
+    ord('Ѭ'): 'Ją',  ord('ѭ'): 'ją',
+    ord('Ѥ'): 'Je',  ord('ѥ'): 'je',
+}
+
+AZ_LATN_TABLE = SR_LATN_TABLE.copy()
+AZ_LATN_TABLE.update({
     # Azerbaijani letters with different transliterations
     ord('Ч'): 'Ç',  ord('ч'): 'ç',
     ord('Х'): 'X',  ord('х'): 'x',
@@ -92,19 +109,14 @@ AZ_LATN_TABLE.update({
 # from https://www.translitteration.com/transliteration/en/kazakh/national/
 KK_LATN_TABLE = SR_LATN_TABLE.copy()
 KK_LATN_TABLE.update({
-    # Kazakh letters
-    ord('Ә'): "A'",  ord('ә'): "a'",
+    # Kazakh letters with different transliterations
+    ord('Ғ'): "G'",  ord('ғ'): "g'",
     ord('И'): "I'",  ord('и'): "i'",
     ord('Й'): "I'",  ord('й'): "i'",
-    ord('Ғ'): "G'",  ord('ғ'): "g'",
     ord('Ж'): 'J',   ord('ж'): 'j',
-    ord('Қ'): 'Q',   ord('қ'): 'q',
-    ord('Ң'): "N'",  ord('ң'): "n'",
     ord('Ө'): "O'",  ord('ө'): "o'",
     ord('У'): "Y'",  ord('у'): "y'",
     ord('Ү'): "U'",  ord('ү'): "u'",
-    ord('Ұ'): 'U',   ord('ұ'): "u",
-    ord('Х'): 'H',   ord('х'): 'h',
     ord('Һ'): 'H',   ord('һ'): 'h',
     ord('Ч'): "C'",  ord('ч'): "c'",
 })

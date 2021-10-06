@@ -483,8 +483,6 @@ def get_available_languages():
             languages.add(language)
 
     for language in sorted(languages):
-        if language == 'ko':
-            continue  # unsure about tokenization so far
         count = len(language_count_sources(language))
         if count >= 2:
             print("{}\t{}\t{}".format(
@@ -496,19 +494,20 @@ def get_available_languages():
             available_languages.append(language)
     return available_languages
 
-# Top level
-# =========
 
-
-def all_language_inputs(wildcards):
+def all_freqs_inputs(wildcards):
     return [
         f"data/freqs/{lang}.txt"
         for lang in get_available_languages()
     ]
 
-rule all:
+rule freqs:
     input:
-        all_language_inputs
+        all_freqs_inputs
+
+
+
+
 
 
 # Diagnostics
