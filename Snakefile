@@ -5,14 +5,6 @@ from collections import defaultdict
 # (TODO: automatically determine what the correct version is)
 WP_VERSION = '20210901'
 
-# What languages does SpaCy currently support? This is information we might need
-# when building SpaCy-specific targets.
-#
-# Lists of languages would take up too much space in the autoformatted "one per
-# line" standard. We group them here by the AEHLPT convention -- each of those
-# letters is an initial letter that starts a new line. This convention allows
-# for less scrolling without constantly reformatting when changing the lists.
-
 
 LANGUAGE_MAPS = {
     'google-ngrams': {
@@ -57,6 +49,11 @@ def map_source_language(source, lcode):
     else:
         return lcode
 
+
+# Lists of languages would take up too much space in the autoformatted "one per
+# line" standard. We group them here by the AEHLPT convention -- each of those
+# letters is an initial letter that starts a new line. This convention allows
+# for less scrolling without constantly reformatting when changing the lists.
 
 SOURCE_LANGUAGES = {
     # GlobalVoices (LREC 2012), from OPUS -- languages with over 100,000 sentences
@@ -453,12 +450,7 @@ rule recount_google:
 # =======
 
 def inputs_for_merge_language_freqs(wildcards):
-    lang = wildcards.lang
-    sources = LANGUAGE_SOURCES[lang]
-    return [
-        f"data/counts/{source}/{lang}.txt"
-        for source in sources
-    ]
+    return language_count_sources(wildcards.lang)
 
 
 rule merge_language_freqs:
@@ -501,12 +493,29 @@ def all_freqs_inputs(wildcards):
         for lang in get_available_languages()
     ]
 
+
 rule freqs:
     input:
         all_freqs_inputs
 
 
+rule wikipedia:
+    input:
+        expand("data/tokens/wikipedia/{lang}.zip", lang=SOURCE_LANGUAGES['wikipedia'])
 
+
+rule opensubtitles:
+    input:
+        expand("data/tokens/opensubtitles/{lang}.zip", lang=SOURCE_LANGUAGES['opensubtitles'])
+
+
+rule oscar:
+    input:
+        expand("data/tokens/oscar/{lang}.zip", lang=SOURCE_LANGUAGES['oscar'])
+
+
+def all_wikipedia_inputs(wildcards):
+    return language_text_sources()
 
 
 
