@@ -40,7 +40,6 @@ class DocZip:
         self.nlp = make_nlp_stack(lang)
         self.path = path
 
-
     @staticmethod
     def open(path: PathLike, lang: str) -> "DocZip":
         """

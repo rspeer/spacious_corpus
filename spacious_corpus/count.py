@@ -14,9 +14,7 @@ def count_tokens(lang: str, in_filename: str, out_filename: str):
     counts = Counter()
     total = 0
     for doc in doc_store:
-        toks = [
-            normalize_token(tok.text, lang) for tok in doc
-        ]
+        toks = [normalize_token(tok.text, lang) for tok in doc]
         toks = [tok for tok in toks if tok != ""]
         counts.update(toks)
         total += len(toks)
@@ -26,10 +24,10 @@ def count_tokens(lang: str, in_filename: str, out_filename: str):
     adjusted_counts = counts - one_each
 
     # Write the counted tokens to outfile
-    with open(out_filename, 'w', encoding='utf-8') as outfile:
-        print('__total__\t{}'.format(total), file=outfile)
+    with open(out_filename, "w", encoding="utf-8") as outfile:
+        print("__total__\t{}".format(total), file=outfile)
         for token, adjcount in adjusted_counts.most_common():
-            print('{}\t{}'.format(token, adjcount + 1), file=outfile)
+            print("{}\t{}".format(token, adjcount + 1), file=outfile)
 
 
 def count_main():
@@ -44,10 +42,10 @@ def recount_messy(lang: str, in_filename: str, out_filename: str):
     counts = Counter()
     total = 0
     nlp = spacy.blank(lang)
-    for line in open(in_filename, encoding='utf-8'):
+    for line in open(in_filename, encoding="utf-8"):
         line = line.rstrip()
-        if line and not line.startswith('__total__'):
-            text, strcount = line.split('\t', 1)
+        if line and not line.startswith("__total__"):
+            text, strcount = line.split("\t", 1)
             count = int(strcount)
             toks = [normalize_token(tok.text, lang) for tok in nlp(text)]
             toks = [tok for tok in toks if tok != ""]
@@ -56,10 +54,10 @@ def recount_messy(lang: str, in_filename: str, out_filename: str):
                 total += count
 
     # Write the counted tokens to output
-    with open(out_filename, 'w', encoding='utf-8') as outfile:
-        print('__total__\t{}'.format(total), file=outfile)
+    with open(out_filename, "w", encoding="utf-8") as outfile:
+        print("__total__\t{}".format(total), file=outfile)
         for token, count in counts.most_common():
-            print('{}\t{}'.format(token, count), file=outfile)
+            print("{}\t{}".format(token, count), file=outfile)
 
 
 def recount_main():

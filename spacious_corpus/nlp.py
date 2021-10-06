@@ -21,11 +21,11 @@ MAX_LINE_LENGTH = 1_000_000
 
 
 MARK_RE = re.compile(
-    '['
-    '\u0591-\u05c7'  # Hebrew marks
-    '\u0610-\u061a\u064b-\u065f\u06d6-\u06ed'  # Arabic marks
-    '\N{ARABIC TATWEEL}'
-    ']'
+    "["
+    "\u0591-\u05c7"  # Hebrew marks
+    "\u0610-\u061a\u064b-\u065f\u06d6-\u06ed"  # Arabic marks
+    "\N{ARABIC TATWEEL}"
+    "]"
 )
 
 
@@ -34,7 +34,9 @@ def make_nlp_stack(lang):
     Get a simple spaCy NLP stack that is appropriate to the language.
     """
     if lang == "ko":
-        return spacy.blank("ko", config={"nlp": {"tokenizer": {"@tokenizers": "spacy.Tokenizer.v1"}}})
+        return spacy.blank(
+            "ko", config={"nlp": {"tokenizer": {"@tokenizers": "spacy.Tokenizer.v1"}}}
+        )
     else:
         return spacy.blank(lang)
 
@@ -196,25 +198,25 @@ def normalize_text(text, language):
     # NFC or NFKC normalization, as needed for the language
     info = get_language_info(language)
     text = text.replace("\n", " ").replace("\t", " ").strip()
-    text = unicodedata.normalize(info['normal_form'], text)
+    text = unicodedata.normalize(info["normal_form"], text)
 
     # Transliteration of multi-script languages
-    if info['transliteration'] is not None:
-        text = transliterate(info['transliteration'], text)
+    if info["transliteration"] is not None:
+        text = transliterate(info["transliteration"], text)
 
     # Abjad mark removal
     text = remove_marks(text)
 
     # Case folding
-    if info['dotless_i']:
+    if info["dotless_i"]:
         text = casefold_with_i_dots(text)
     else:
         text = text.casefold()
 
     # Fixing of diacritics
-    if info['diacritics_under'] == 'commas':
+    if info["diacritics_under"] == "commas":
         text = cedillas_to_commas(text)
-    elif info['diacritics_under'] == 'cedillas':
+    elif info["diacritics_under"] == "cedillas":
         text = commas_to_cedillas(text)
 
     # curly apostrophes become straight
@@ -232,7 +234,7 @@ def remove_marks(text):
     - Tatweels, horizontal segments that are used to extend or justify an
       Arabic word.
     """
-    return MARK_RE.sub('', text)
+    return MARK_RE.sub("", text)
 
 
 def casefold_with_i_dots(text):
@@ -241,7 +243,7 @@ def casefold_with_i_dots(text):
     that's appropriate for Turkish and related languages, then case-fold
     the rest of the letters.
     """
-    text = unicodedata.normalize('NFC', text).replace('İ', 'i').replace('I', 'ı')
+    text = unicodedata.normalize("NFC", text).replace("İ", "i").replace("I", "ı")
     return text.casefold()
 
 
@@ -254,11 +256,11 @@ def commas_to_cedillas(text):
     text has already been case-folded.
     """
     return text.replace(
-        '\N{LATIN SMALL LETTER S WITH COMMA BELOW}',
-        '\N{LATIN SMALL LETTER S WITH CEDILLA}'
+        "\N{LATIN SMALL LETTER S WITH COMMA BELOW}",
+        "\N{LATIN SMALL LETTER S WITH CEDILLA}",
     ).replace(
-        '\N{LATIN SMALL LETTER T WITH COMMA BELOW}',
-        '\N{LATIN SMALL LETTER T WITH CEDILLA}'
+        "\N{LATIN SMALL LETTER T WITH COMMA BELOW}",
+        "\N{LATIN SMALL LETTER T WITH CEDILLA}",
     )
 
 
@@ -271,9 +273,9 @@ def cedillas_to_commas(text):
     text has already been case-folded.
     """
     return text.replace(
-        '\N{LATIN SMALL LETTER S WITH CEDILLA}',
-        '\N{LATIN SMALL LETTER S WITH COMMA BELOW}'
+        "\N{LATIN SMALL LETTER S WITH CEDILLA}",
+        "\N{LATIN SMALL LETTER S WITH COMMA BELOW}",
     ).replace(
-        '\N{LATIN SMALL LETTER T WITH CEDILLA}',
-        '\N{LATIN SMALL LETTER T WITH COMMA BELOW}'
+        "\N{LATIN SMALL LETTER T WITH CEDILLA}",
+        "\N{LATIN SMALL LETTER T WITH COMMA BELOW}",
     )

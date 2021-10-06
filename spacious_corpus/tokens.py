@@ -10,8 +10,8 @@ from .nlp import normalize_text
 MAX_LINE_LENGTH = 1_000_000
 
 
-DIGIT_RE = re.compile(r'\d')
-MULTI_DIGIT_RE = re.compile(r'\d[\d.,]+')
+DIGIT_RE = re.compile(r"\d")
+MULTI_DIGIT_RE = re.compile(r"\d[\d.,]+")
 
 
 def _sub_numbers(match):
@@ -19,7 +19,7 @@ def _sub_numbers(match):
     Given a regex match, return what it matched with digits replaced by
     #.
     """
-    return DIGIT_RE.sub('#', match.group(0))
+    return DIGIT_RE.sub("#", match.group(0))
 
 
 def smash_numbers(text):
@@ -41,7 +41,7 @@ def smash_numbers(text):
     """
     replaced = MULTI_DIGIT_RE.sub(_sub_numbers, text)
     if replaced != text:
-        return f'NUM:{replaced}'
+        return f"NUM:{replaced}"
     else:
         return text
 
@@ -60,10 +60,12 @@ def tokenize_stream(lang, stream, output_file, chunk_size=1_000_000, use_ftfy=Tr
             line = line.strip()
             if line and len(line) < MAX_LINE_LENGTH:
                 if use_ftfy:
-                    line = fix_text(line.rstrip()).replace('\n', ' ')
+                    line = fix_text(line.rstrip()).replace("\n", " ")
                 else:
                     # Run only specific quick fixes from ftfy
-                    line = fix_surrogates(unescape_html(line.rstrip())).replace('\n', ' ')
+                    line = fix_surrogates(unescape_html(line.rstrip())).replace(
+                        "\n", " "
+                    )
                 yield line
 
     doc_zip = DocZip.open(output_file, lang)
@@ -71,12 +73,14 @@ def tokenize_stream(lang, stream, output_file, chunk_size=1_000_000, use_ftfy=Tr
 
 
 def tokenize_stdin(lang, output_file, chunk_size=1_000_000, use_ftfy=True):
-    tokenize_stream(lang, sys.stdin, output_file, chunk_size=chunk_size, use_ftfy=use_ftfy)
+    tokenize_stream(
+        lang, sys.stdin, output_file, chunk_size=chunk_size, use_ftfy=use_ftfy
+    )
 
 
 def main():
     typer.run(tokenize_stdin)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

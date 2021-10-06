@@ -11,7 +11,7 @@ def _language_in_list(language, targets, max_distance=10):
     objects. `targets` can be any iterable of such languages.
     """
     matched = closest_match(language, targets, max_distance=max_distance)
-    return matched[0] != 'und'
+    return matched[0] != "und"
 
 
 @lru_cache(maxsize=None)
@@ -60,31 +60,31 @@ def get_language_info(language):
     # Start the `info` dictionary with default values, including the 'script'
     # value that we now know from `language_full`.
     info = {
-        'script': language_full.script,
-        'tokenizer': 'regex',
-        'normal_form': 'NFKC',
-        'remove_marks': False,
-        'dotless_i': False,
-        'diacritics_under': None,
-        'transliteration': None,
-        'lookup_transliteration': None
+        "script": language_full.script,
+        "tokenizer": "regex",
+        "normal_form": "NFKC",
+        "remove_marks": False,
+        "dotless_i": False,
+        "diacritics_under": None,
+        "transliteration": None,
+        "lookup_transliteration": None,
     }
 
     # Cased alphabetic scripts get NFC normal form
-    if info['script'] in ['Latn', 'Grek', 'Cyrl']:
-        info['normal_form'] = 'NFC'
+    if info["script"] in ["Latn", "Grek", "Cyrl"]:
+        info["normal_form"] = "NFC"
 
-    if _language_in_list(language, ['tr', 'az', 'kk']):
-        info['dotless_i'] = True
-        info['diacritics_under'] = 'cedillas'
-    elif _language_in_list(language, ['ro']):
-        info['diacritics_under'] = 'commas'
+    if _language_in_list(language, ["tr", "az", "kk"]):
+        info["dotless_i"] = True
+        info["diacritics_under"] = "cedillas"
+    elif _language_in_list(language, ["ro"]):
+        info["diacritics_under"] = "commas"
 
-    if _language_in_list(language, ['sr']):
-        info['transliteration'] = 'sr-Latn'
-    elif _language_in_list(language, ['az']):
-        info['transliteration'] = 'az-Latn'
-    elif _language_in_list(language, ['kk']):
-        info['transliteration'] = 'kk-Latn'
+    if _language_in_list(language, ["sr"]):
+        info["transliteration"] = "sr-Latn"
+    elif _language_in_list(language, ["az"]):
+        info["transliteration"] = "az-Latn"
+    elif _language_in_list(language, ["kk"]):
+        info["transliteration"] = "kk-Latn"
 
     return info

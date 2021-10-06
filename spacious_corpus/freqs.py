@@ -12,12 +12,12 @@ def counts_to_freqs(infile: str) -> Dict[str, float]:
     """
     total = None
     freqs = {}
-    for line in open(infile, encoding='utf-8'):
+    for line in open(infile, encoding="utf-8"):
         line = line.rstrip()
         if line:
-            word, strcount = line.split('\t', 1)
+            word, strcount = line.split("\t", 1)
             count = int(strcount)
-            if word == '__total__':
+            if word == "__total__":
                 total = count
             else:
                 freq = count / total
@@ -38,20 +38,18 @@ def merge_freqs(freq_dicts):
     merged = defaultdict(float)
     N = len(freq_dicts)
     if N < 3:
-        raise ValueError(
-            "Merging frequencies requires at least 3 frequency lists."
-        )
+        raise ValueError("Merging frequencies requires at least 3 frequency lists.")
     for term in vocab:
         freqs = []
         for freq_dict in freq_dicts:
-            freq = freq_dict.get(term, 0.)
+            freq = freq_dict.get(term, 0.0)
             freqs.append(freq)
 
         if freqs:
             freqs.sort()
             inliers = freqs[1:-1]
             mean = statistics.mean(inliers)
-            if mean > 0.:
+            if mean > 0.0:
                 merged[term] = mean
 
     total = sum(merged.values())
@@ -69,17 +67,13 @@ def _write_frequency_file(freq_dict, outfile):
     for word, freq in freq_items:
         if freq < 1e-9:
             break
-        print('{}\t{:.5g}'.format(word, freq), file=outfile)
+        print("{}\t{:.5g}".format(word, freq), file=outfile)
 
 
-def merge_counts_to_freqs(
-    lang: str,
-    inputs: List[str],
-    output: str
-):
+def merge_counts_to_freqs(lang: str, inputs: List[str], output: str):
     freq_dicts = [counts_to_freqs(infile) for infile in inputs]
     merged = merge_freqs(freq_dicts)
-    with open(output, 'w', encoding='utf-8') as outfile:
+    with open(output, "w", encoding="utf-8") as outfile:
         _write_frequency_file(merged, outfile)
 
 
