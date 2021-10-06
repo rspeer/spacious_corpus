@@ -68,6 +68,8 @@ files:
   Download and tokenize the first 1,000,000 lines of the OSCAR web-crawled
   corpus in many languages.
 
+You should expect these builds to take at least a day to run to completion.
+
 ## Output formats
 
 ### Frequencies
@@ -87,6 +89,20 @@ and     0.024423
 to      0.023004
 in      0.019477
 ```
+
+These lexemes come from text in a normal form specified in `spacious_corpus.nlp`:
+
+- Text is NFC or NFKC normalized, depending on the language
+- Text is case-folded to lowercase
+- Vowel marks are removed, in languages where they are optional and uncommon
+- Multi-script languages (such as Serbian) are transliterated into Latin letters
+
+When tokenizing and counting tokens, we apply more changes:
+
+- Multi-digit numbers are collapsed into one lexeme representing the shape of
+  the digits: for example, `24,601` becomes `NUM:##,###`
+- Whitespace is stripped from the edges of the tokens
+- Tokens made only of whitespace are removed
 
 ### Tokens
 
