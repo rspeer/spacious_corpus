@@ -52,12 +52,13 @@ and built.
 
 You can also access a corpus without using a spaCy config. For example, this
 code gets OpenSubtitles in Japanese (downloading and building it if necessary)
-and shows its first line as a spaCy Doc:
+and shows its first subtitle as a spaCy Doc:
 
 ```python
-from spacious_corpus.corpus import *
-corpus = iterate_corpus('opensubtitles', 'ja', workdir='/data/spacious_corpus')
-next(corpus)
+>>> from spacious_corpus.corpus import *
+>>> corpus = iterate_corpus('opensubtitles', 'ja', workdir='/data/spacious_corpus')
+>>> next(iter(corpus))
+ゴーリキー記念撮影所 1957年
 ```
 
 ## Running a build from the command line
