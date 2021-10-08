@@ -44,6 +44,22 @@ there may be more detail in the language code used by the corpus. For example,
 you might request a corpus in language `zh-Hans` (Simplified Chinese), which
 will be processed by a spaCy pipeline in language `zh`.
 
+`workdir` should be a directory on a large hard disk. You can reuse the same
+`workdir` in later runs to benefit from resources you've already downloaded
+and built.
+
+## Accessing tokenized corpora as a Python iterator
+
+You can also access a corpus without using a spaCy config. For example, this
+code gets OpenSubtitles in Japanese (downloading and building it if necessary)
+and shows its first line as a spaCy Doc:
+
+```python
+from spacious_corpus.corpus import *
+corpus = iterate_corpus('opensubtitles', 'ja', workdir='/data/spacious_corpus')
+next(corpus)
+```
+
 ## Running a build from the command line
 
 The Snakefile describes how various data is built. The script `./make.sh`
