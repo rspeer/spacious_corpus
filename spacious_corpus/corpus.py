@@ -36,8 +36,10 @@ def corpus_reader(
         absolute_corpus_path = workdir / corpus_subpath
         corpus = DocZip.open(absolute_corpus_path, lang)
         if limit is not None:
-            corpus = itertools.islice(corpus, start_at, start_at + limit)
-
+            if start_at is not None:
+                corpus = itertools.islice(corpus, start_at, start_at + limit)
+            else:
+                corpus = itertools.islice(corpus, limit)
         return corpus
     
     return corpus_iterator
