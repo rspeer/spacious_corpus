@@ -34,11 +34,10 @@ class DocZip:
 
     def __init__(self, path: PathLike, lang: str):
         self.lang = lang
-
-        # Does self.nlp need to be configurable to support different vocabs?
-        # Should we serialize the vocab in the file as well?
-        self.nlp = make_nlp_stack(lang)
         self.path = path
+    
+    def _make_nlp_stack(self):
+        return make_nlp_stack(self.lang)
 
     @staticmethod
     def open(path: PathLike, lang: str) -> "DocZip":
@@ -57,10 +56,11 @@ class DocZip:
         within the .zip.
         """
         doc_bin = DocBin(attrs=[])
+        nlp = self._make_nlp_stack()
         with ZipFile(self.path, mode="r") as zip_file:
             part_bytes = zip_file.read(chunkname)
             doc_bin.from_bytes(part_bytes)
-        yield from doc_bin.get_docs(self.nlp.vocab)
+        yield from doc_bin.get_docs(nlp.vocab)
 
     def get_chunks(self) -> List[str]:
         """
@@ -95,9 +95,14 @@ class DocZip:
                 line_enumerator = enumerate(stream)
                 for (chunk_num, group) in itertools.groupby(line_enumerator, chunker):
                     doc_bin = DocBin(attrs=[])
+
+                    # Reload the NLP stack in every chunk, to avoid unbounded
+                    # memory usage
+                    nlp = self._make_nlp_stack()
                     for _num, text in group:
-                        doc = self.nlp(text)
-                        doc_bin.add(doc)
+                        if len(text) <= nlp.max_length:
+                            doc = nlp(text)
+                            doc_bin.add(doc)
 
                     filename = f"{self.lang}_{chunk_num:>03d}.spacy"
                     temp_file: Path = temp_path / f"{self.lang}_{chunk_num:>03d}.spacy"

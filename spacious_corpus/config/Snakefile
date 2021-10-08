@@ -336,6 +336,7 @@ rule download_wikipedia:
         version = WP_VERSION
         shell("wget 'https://dumps.wikimedia.org/{source_lang}wiki/{version}/{source_lang}wiki-{version}-pages-articles.xml.bz2' -O {output}")
 
+
 rule download_newscrawl:
     output:
         "data/downloaded/newscrawl-2014-monolingual.tar.gz"
@@ -432,6 +433,7 @@ rule tokenize_newscrawl:
     shell:
         "spacious-corpus-tokenize {wildcards.lang} {output} < {input}"
 
+
 rule extract_globalvoices:
     input:
         "data/downloaded/globalvoices/{lang}.txt.gz"
@@ -458,6 +460,7 @@ rule recount_google:
         "data/counts/google-ngrams/{lang}.txt"
     shell:
         "spacious-corpus-recount {wildcards.lang} {input} {output}"
+
 
 # Merging
 # =======
