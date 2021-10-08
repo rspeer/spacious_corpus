@@ -14,7 +14,8 @@ from pathlib import Path
 def corpus_reader(
     corpus_name: str,
     workdir: Union[Path, str],
-    limit: Optional[int] = None,
+    start_at: Optional[int] = None,
+    limit: Optional[int] = None
 ) -> Callable[[Language], Iterable[Doc]]:
     """
     Run the Snakemake build to acquire a corpus if necessary, then iterate
@@ -35,7 +36,7 @@ def corpus_reader(
         absolute_corpus_path = workdir / corpus_subpath
         corpus = DocZip.open(absolute_corpus_path, lang)
         if limit is not None:
-            corpus = itertools.islice(corpus, limit)
+            corpus = itertools.islice(corpus, start_at, start_at + limit)
 
         return corpus
     
