@@ -1,22 +1,8 @@
 # spacious_corpus
 
-A build process for collecting plain-text corpus data in various languages.
-
-This code is built on [Snakemake][]. Snakemake is a general-purpose build tool
-that's centered around building data instead of compiling code. It supports
-rules that have multiple inputs and multiple outputs, and the inputs and outputs
-can be determined by pattern matches and variable expansions. This kind of thing
-is necessary when we have a variety of sources, with different shapes to their
-data, in a number of different languages.
-
-[snakemake]: https://snakemake.readthedocs.io/en/stable/
-
-This process originates from [exquisite-corpus][], but here we focus on data
-sources and formats we want to use with SpaCy, and eliminate much of its
-accumulated complexity.
-
-[exquisite-corpus]: https://github.com/LuminosoInsight/exquisite-corpus
-
+A provider of plain-text corpus data in various languages. It can be used
+as a spaCy corpus, providing the `spacious_corpus.SpaciousCorpus.v1`
+extension.
 
 ## Setup and dependencies
 
@@ -25,17 +11,40 @@ dependencies of this code appear in `setup.cfg`, and will be installed as a
 result of this command.
 
 Another dependency is on [wikiparsec][], Elia's toolkit for parsing WikiText,
-which is written in Haskell. Follow its instructions to build and install it.
+which is written in Haskell. You'll need this to get Wikipedia as a corpus.
+Follow its instructions to build and install it.
 
 [wikiparsec]: https://github.com/rspeer/wikiparsec
 
-You also need command line tools such as `wget`, `curl`, and `bunzip2`.
+You also need command line tools such as `wget`, `curl`, and `bunzip2`, which
+will be used during the build.
 
 Make sure that you have enough hard disk space available. All of the downloaded
 and built data will go into the `data/` subdirectory, so if you need to, you can
 make this a symbolic link to a separate disk.
 
-## Running a build
+## Accessing tokenized corpora in spaCy
+
+You can instruct `spacious_corpus` to iterate through a corpus, building it
+if necessary, from within a spaCy config. Here's an example, which provides
+the English part of the OSCAR corpus as `corpora.pretrain`:
+
+```
+[corpora.pretrain]
+@readers = "spacious_corpus.SpaciousCorpus.v1"
+lang = "en"
+corpus_name = "oscar"
+workdir = ${paths.spacious_corpus}
+limit = 1000000
+```
+
+The language should match the language of your `nlp` object, but it's not
+entirely redundant that you have to specify it as a parameter here, because
+there may be more detail in the language code used by the corpus. For example,
+you might request a corpus in language `zh-Hans` (Simplified Chinese), which
+will be processed by a spaCy pipeline in language `zh`.
+
+## Running a build from the command line
 
 The Snakefile describes how various data is built. The script `./make.sh`
 invokes Snakemake with appropriate options so that it schedules up to 8
@@ -72,6 +81,14 @@ You should expect these builds to take at least a day to run to completion.
 
 ## Output formats
 
+### Tokens
+
+Tokenized text is stored in .zip files of .spacy binary files. These files are
+read and written with the `spacious_corpus.storage.DocZip` class.
+
+The `spacious_corpus.corpus` module provides functions for reading files of
+tokenized text, including the spaCy reader.
+
 ### Frequencies
 
 Frequencies appear in `data/freqs/{lang}.txt`, as tab-separated lexemes and
@@ -106,7 +123,19 @@ When tokenizing and counting tokens, we apply more changes:
 - Whitespace is stripped from the edges of the tokens
 - Tokens made only of whitespace are removed
 
-### Tokens
+## Origins
 
-Tokenized text is stored in .zip files of .spacy binary files. These files are
-read and written with the `spacious_corpus.storage.DocZip` class.
+This code is built on [Snakemake][]. Snakemake is a general-purpose build tool
+that's centered around building data instead of compiling code. It supports
+rules that have multiple inputs and multiple outputs, and the inputs and outputs
+can be determined by pattern matches and variable expansions. This kind of thing
+is necessary when we have a variety of sources, with different shapes to their
+data, in a number of different languages.
+
+[snakemake]: https://snakemake.readthedocs.io/en/stable/
+
+This process originates from [exquisite-corpus][], but here we focus on data
+sources and formats we want to use with SpaCy, and eliminate much of the
+accumulated complexity of exquisite-corpus.
+
+[exquisite-corpus]: https://github.com/LuminosoInsight/exquisite-corpus

@@ -1,9 +1,13 @@
+"""
+Provides a CLI for building a particular target (or list of targets) in
+spacious_corpus, and a function that can be reused in `corpus.py` to
+ensure a particular corpus is built and then iterate over it.
+"""
 import snakemake
 import typer
 from .util import snakemake_filename
 
-from pathlib import Path
-from typing import List, Union
+from typing import List
 
 # Limits on how many simulataneous files we can download from various sources
 RESOURCES = {
@@ -13,6 +17,13 @@ RESOURCES = {
 
 
 def build_targets(targets: List[str], workdir: str):
+    """
+    Build the requested list of targets, given as relative paths starting with
+    'data/', with `workdir` as the working directory.
+
+    `workdir` should point to a directory on a large disk. Reusing the same
+    workdir allows reusing previously downloaded and built resources.
+    """
     snakemake.snakemake(
         snakemake_filename(),
         targets=targets,
